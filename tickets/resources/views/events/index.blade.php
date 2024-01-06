@@ -68,10 +68,9 @@
            
 
                 @if(Auth::user()->role_id == 0)
-                coaie nu esti admin
-            
+                <button> <a href="{{'/test/CreateEvent'}}">Create an event</a> </button>
                 @else
-                 <button> <a href="{{'/test/CreateEvent'}}">Create an event</a> </button>
+                 nu admin
                 @endif
                 </div>
             </div>
