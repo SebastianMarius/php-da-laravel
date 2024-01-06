@@ -46,14 +46,12 @@
 
                                     @if(Auth::user()->role_id == 0)
                                     <div>
-                                        <!-- <img class="action-icons" src="./assets/edit.svg" onclick="openEditModal(30)"> -->
                                         <a href="{{ url('events/'. $event->id ). '/edit' }}">Edit Event</a>
                                         <form action="{{ url('/events/' . $event->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" style="float:right">Delete event</button>
                                         </form>
-                                        <!-- <img class="action-icons trash" src="./assets/delete.svg" onclick="deleteEvent(30)"> -->
                                     </div>
                                     @endif
                                   

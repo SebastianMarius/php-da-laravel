@@ -8,6 +8,7 @@
 <body>
     <div class="container">
       <div> this page it s still in progress </div>
+      <div>{{$eventu_din_db->id}}</div>
     </div>
 </body>
 </html>

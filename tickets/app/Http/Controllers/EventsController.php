@@ -127,12 +127,14 @@ class EventsController extends Controller
      */
     public function edit(Event $event)
     {
+         
+        $urlu = url()->current();
+        $segments = collect(explode('/', $urlu));
+        $desiredSegment = $segments->reverse()->splice(1, 1)->first(); 
+
+        $eventu_din_db = Event::find($desiredSegment);
         
-        // $event =  Event::find($event)->get();
-    
-        // return view('events.edit', compact('event', 'speakers', 'sponsors', 'partners'));
-        
-        return view('events.edit');
+        return view('events.edit', compact('eventu_din_db'));
     }
 
     /**
