@@ -44,12 +44,12 @@ class EventsController extends Controller
     }
         /**
 
-     * Store a newly created resource in storage.
+     * Edits created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function editStore(Request $request)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
@@ -148,7 +148,7 @@ class EventsController extends Controller
         $event->save();
     
         Log::info($request->input('speaker_ids')); // Add this line to check the event title
-        
+
         // Attach speakers, sponsors, and partners
         $event->speakers()->sync($request->input('speaker_ids', []));
         $event->sponsors()->sync($request->input('sponsor_ids', []));
