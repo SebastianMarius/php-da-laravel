@@ -37,11 +37,11 @@
             </div>
             <div class="form-group">
                 <label for="description">Description:</label>
-                <textarea id="description" name="description" class="form-control" value="{{$eventu_din_db->description}}"></textarea>
+                <textarea id="description" name="description" class="form-control">{{$eventu_din_db->description}}</textarea>
             </div>
             <div class="form-group">
                 <label for="tichet_price">Ticket Price:</label>
-                <input type="number" id="tichet_price" name="tichet_price" class="form-control" value="{{$eventu_din_db->ticket_price}}">
+                <input type="number" id="tichet_price" name="tichet_price" class="form-control" value="{{$eventu_din_db->tichet_price}}">
             </div>
             <div class="form-group">
                 <label for="photo">Photo URL:</label>
