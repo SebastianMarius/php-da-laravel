@@ -54,57 +54,106 @@ class EventsController extends Controller
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
 
-        $event = new Event;
-        $event->title = $request->title;
-        $event->start_date = $request->start_date;
-        $event->start_time = $request->start_time;
-        $event->end_date = $request->end_date;
-        $event->end_time = $request->end_time;
-        $event->location = $request->location;
-        $event->description = $request->description;
-        $event->tichet_price = $request->tichet_price *100;
+        $event = Event::find($request->id)
+        if ($event->title != $request->title)
+            $event->title = $request->title;
+
+        if ($event->start_date != $request->start_date)
+            $event->start_date = $request->start_date;
+
+
+        if($event->start_time != $request->start_time)
+            $event->start_time = $request->start_time;
         
-    
+        if($event->end_date != $request->end_date)
+            $event->end_date = $request->end_date;
+        
+        if($event->end_time != $request->end_time)
+            $event->end_time = $request->end_time;
+
+
+        if($event->location != $request->location)
+            $event->location = $request->location;
+        
+        if($event->description != $request->description)
+            $event->description = $request->description;
+
+        if($event->tichet_price != $request->tichet_price*100)
+            $event->tichet_price = $request->tichet_price *100;
+
+
         // Handle photo upload
-        Log::info('dasss');
-        Log::info($request->tichet_price);
-        if ($request->hasFile('photo')) {
-            Log::info('dadadada');
-            $photo = $request->file('photo');
-            $photoName = time() . '_' . $photo->getClientOriginalName();
-            $photo->move(public_path('photos'), $photoName);
-            $event->photo_url = '/photos/' . $photoName;
-        }
+        // Log::info($request);
+        // Log::info($request->tichet_price);
+        // $event->imageurl = $request->photo;
+        // if ($request->hasFile('photo')) {
+        //     $photo = $request->file('photo');
+        //     $photoName = time() . '' . $photo->getClientOriginalName();
+
+        //     if ($photo->move(public_path('photos'), $photoName)) {
+        //         $event->photo_url = '/photos/' . $photoName;
+        //         Log::info('Photo uploaded successfully. Photo URL: ' . $event->photo_url);
+        //     } else {
+        //         Log::error('Failed to move the photo.');
+        //     }
+        // }
 
         Log::info('Event Title: ' . $event->title); // Add this line to check the event title
 
+        // retrieve Stripe Product
+        $stripeProduct = Product::find($event->stripe_product_id)
 
-        $stripeProduct = Product::create([
-            'name' => $event->title // Replace with your event name or title
-            // Other product details if needed
-        ]);
+        // Check if the product exists
+        if ($stripeProduct) {
+            // Update the title if it's different
+            if ($stripeProduct->name != $event->title)
+                $stripeProduct->name = $event->title; // Replace with the new title
+
+            $stripeProduct->save(); // Save the changes
+
+        } else { // if stripeProduct doesn't exist
+            $newStripeProduct = Product::create([
+                'name' => $event->title // Replace with your event name or title
+                // Other product details if needed
+            ]);
+            $event->stripe_product_id = $newStripeProduct->id; // associate product ID with the event
+        }
     
-        // Create a price for the product in Stripe
-        $stripePrice = Price::create([
-            'product' => $stripeProduct->id,
-            'unit_amount' => $request->tichet_price * 100, // Convert to cents
-            'currency' => 'usd', // Replace with your desired currency
-            // Other price details if needed
-        ]);
+        // Retrieve Stripe Price
+        $stripePrice = Price::find($event->stripe_price_id)
+
+        // Check if the price exists
+        if ($stripePrice) {
+            // Update the stripe price if it's different
+            if ($stripePrice->product != $stripeProduct->id)
+                $stripePrice->product = $stripeProduct->id; // Replace with the new product id
+
+            if ($stripePrice->unit_amount != $event->tichet_price)
+                $stripePrice->unit_amount = $event->tichet_price
+
+            $stripePrice->save(); // Save the changes
+            
+        } else { // if stripe Price doesn't exist
+            $newStripePrice = Price::create([
+                'product' => $stripeProduct->id,
+                'unit_amount' => $event->tichet_price, // Convert to cents
+                'currency' => 'usd', // Replace with your desired currency
+                // Other price details if needed
+            ]);
+            $event->stripe_price_id = $newStripePrice->id; // associate price ID with the event
+        }
     
-        // Associate the Stripe Product ID and Stripe Price ID with your Event
-        $event->stripe_product_id = $stripeProduct->id;
-        $event->stripe_price_id = $stripePrice->id;
     
         $event->save();
     
         Log::info($request->input('speaker_ids')); // Add this line to check the event title
+        
         // Attach speakers, sponsors, and partners
         $event->speakers()->sync($request->input('speaker_ids', []));
         $event->sponsors()->sync($request->input('sponsor_ids', []));
         $event->partners()->sync($request->input('partner_ids', []));
     
-        // return redirect()->route('events.index')->with('success', 'Event created successfully!');
+        // return redirect()->route('events.index')->with('success', 'Event edited successfully!');
     }
     
 
@@ -134,7 +183,11 @@ class EventsController extends Controller
 
         $eventu_din_db = Event::find($desiredSegment);
         
-        return view('events.edit', compact('eventu_din_db'));
+        $speakers = Speakers::all();
+        $sponsors = Sponsors::all();
+        $partners = Partners::all();
+        
+        return view('events.edit', compact('eventu_din_db', 'speakers', 'sponsors', 'partners'));
     }
 
     /**
