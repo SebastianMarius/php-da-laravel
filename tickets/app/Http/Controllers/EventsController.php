@@ -151,8 +151,8 @@ class EventsController extends Controller
         if($event->description != $request->description)
             $event->description = $request->description;
 
-        if($event->tichet_price != $request->tichet_price*100)
-            $event->tichet_price = $request->tichet_price *100;
+        if($event->tichet_price != $request->tichet_price)
+            $event->tichet_price = $request->tichet_price*100;
 
 
         // Handle photo upload
