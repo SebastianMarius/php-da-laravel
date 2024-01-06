@@ -27,6 +27,7 @@ Route::get('/events/{eventId}/edit', [EventsController::class,'edit'])->middlewa
 Route::put('/events/{eventId}', [EventsController::class, 'update'])->name('events.update');
 Route::delete('/events/{eventId}', [EventsController::class, 'destroy'])->middleware('auth');
 Route::post('/test/CreateEvent', [EventsController::class, 'store'])->middleware('auth');
+Route::post('/test/EditEvent', [EventsController::class, 'editStore'])->middleware('auth');
 
 Route::view('/event/{eventId}/about', 'eventPages.home');
 Route::view('/event/{eventId}/speakers', 'eventPages.speakers');
