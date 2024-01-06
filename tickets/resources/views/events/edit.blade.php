@@ -37,7 +37,11 @@
             </div>
             <div class="form-group">
                 <label for="description">Description:</label>
+<<<<<<< HEAD
                 <textarea id="description" name="description" class="form-control" >{{$eventu_din_db->description}}</textarea>
+=======
+                <textarea id="description" name="description" class="form-control">{{$eventu_din_db->description}}</textarea>
+>>>>>>> 8178086a18dceda85136093376f27bd26c046fc7
             </div>
             <div class="form-group">
                 <label for="tichet_price">Ticket Price:</label>
