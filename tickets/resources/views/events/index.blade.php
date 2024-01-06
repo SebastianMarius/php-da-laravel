@@ -35,7 +35,7 @@
                     @foreach ($events as $event)
                         <div class="card"  onclick="saveToLocalStorage('{{ $event }}')">
                             <button> Buy tickets</button>
-                            <div class="card-image-container" style="background-image: url('build/assets/Hero-1.jpg'); background-size: cover; opacity: 0.5; height: 200px;"></div>
+                            <div class="card-image-container" style="background-image: url('{{$event->image_url}}'); background-size: cover; opacity: 0.5; height: 200px;"></div>
                             <div class="card-text-container">
                                 <div class="card-header">
                                     <h2>{{$event->title}}</h2>

@@ -66,14 +66,20 @@ class EventsController extends Controller
         
     
         // Handle photo upload
-        Log::info('dasss');
+        Log::info($request);
         Log::info($request->tichet_price);
+        // $event->image_url = $request->photo;
+        $event->image_url = '/storage/images/' . $request->photo;
         if ($request->hasFile('photo')) {
-            Log::info('dadadada');
             $photo = $request->file('photo');
             $photoName = time() . '_' . $photo->getClientOriginalName();
-            $photo->move(public_path('photos'), $photoName);
-            $event->photo_url = '/photos/' . $photoName;
+            
+            if ($photo->move(public_path('photos'), $photoName)) {
+                $event->photo_url = '/photos/' . $photoName;
+                Log::info('Photo uploaded successfully. Photo URL: ' . $event->photo_url);
+            } else {
+                Log::error('Failed to move the photo.');
+            }
         }
 
         Log::info('Event Title: ' . $event->title); // Add this line to check the event title
