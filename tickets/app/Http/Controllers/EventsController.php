@@ -42,7 +42,7 @@ class EventsController extends Controller
         return view('events.create', compact('speakers', 'sponsors', 'partners'));
 
     }
-    
+
     /**
 
      * Store a newly created resource in storage.
@@ -173,49 +173,16 @@ class EventsController extends Controller
 
         Log::info('Event Title: ' . $event->title); // Add this line to check the event title
 
-        // retrieve Stripe Product
-        $stripeProduct = Product::find($event->stripe_product_id);
-
-        // Check if the product exists
-        if ($stripeProduct) {
-            // Update the title if it's different
-            if ($stripeProduct->name != $event->title)
-                $stripeProduct->name = $event->title; // Replace with the new title
-
-            $stripeProduct->save(); // Save the changes
-
-        } else { // if stripeProduct doesn't exist
-            $newStripeProduct = Product::create([
-                'name' => $event->title // Replace with your event name or title
-                // Other product details if needed
-            ]);
-            $event->stripe_product_id = $newStripeProduct->id; // associate product ID with the event
-        }
+        // Update Stripe Product
+        $stripeProduct = Product::update($event->stripe_product_id, ['metadata' => ['name' => $event->title]]);
     
-        // Retrieve Stripe Price
-        $stripePrice = Price::find($event->stripe_price_id);
-
-        // Check if the price exists
-        if ($stripePrice) {
-            // Update the stripe price if it's different
-            if ($stripePrice->product != $stripeProduct->id)
-                $stripePrice->product = $stripeProduct->id; // Replace with the new product id
-
-            if ($stripePrice->unit_amount != $event->tichet_price)
-                $stripePrice->unit_amount = $event->tichet_price;
-
-            $stripePrice->save(); // Save the changes
-            
-        } else { // if stripe Price doesn't exist
-            $newStripePrice = Price::create([
+        // Update Stripe Price
+        $stripePrice = Price::update($event->stripe_price_id, ['metadata' => [
                 'product' => $stripeProduct->id,
                 'unit_amount' => $event->tichet_price, // Convert to cents
                 'currency' => 'usd', // Replace with your desired currency
                 // Other price details if needed
-            ]);
-            $event->stripe_price_id = $newStripePrice->id; // associate price ID with the event
-        }
-    
+        ]]);
     
         $event->save();
     
