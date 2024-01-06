@@ -72,6 +72,11 @@
                 @endforeach
             </div>
 
+            <div class="form-group">
+            <input type="hidden" id="ceva" name="id" value="{{$eventu_din_db->id}}"/>  
+          </div>
+            
+
             <button type="submit" class="btn btn-primary">Edit Event</button>
         </form>
     </div>
