@@ -42,6 +42,71 @@ class EventsController extends Controller
         return view('events.create', compact('speakers', 'sponsors', 'partners'));
 
     }
+    
+    public function store(Request $request)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+
+        $event = new Event;
+        $event->title = $request->title;
+        $event->start_date = $request->start_date;
+        $event->start_time = $request->start_time;
+        $event->end_date = $request->end_date;
+        $event->end_time = $request->end_time;
+        $event->location = $request->location;
+        $event->description = $request->description;
+        $event->tichet_price = $request->tichet_price *100;
+        
+    
+        // Handle photo upload
+        Log::info($request);
+        Log::info($request->tichet_price);
+        // $event->image_url = $request->photo;
+        $event->image_url = '/storage/images/' . $request->photo;
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            
+            if ($photo->move(public_path('photos'), $photoName)) {
+                $event->photo_url = '/photos/' . $photoName;
+                Log::info('Photo uploaded successfully. Photo URL: ' . $event->photo_url);
+            } else {
+                Log::error('Failed to move the photo.');
+            }
+        }
+
+        Log::info('Event Title: ' . $event->title); // Add this line to check the event title
+
+
+        $stripeProduct = Product::create([
+            'name' => $event->title // Replace with your event name or title
+            // Other product details if needed
+        ]);
+    
+        // Create a price for the product in Stripe
+        $stripePrice = Price::create([
+            'product' => $stripeProduct->id,
+            'unit_amount' => $request->tichet_price * 100, // Convert to cents
+            'currency' => 'usd', // Replace with your desired currency
+            // Other price details if needed
+        ]);
+    
+        // Associate the Stripe Product ID and Stripe Price ID with your Event
+        $event->stripe_product_id = $stripeProduct->id;
+        $event->stripe_price_id = $stripePrice->id;
+    
+        $event->save();
+    
+        Log::info($request->input('speaker_ids')); // Add this line to check the event title
+        // Attach speakers, sponsors, and partners
+        $event->speakers()->sync($request->input('speaker_ids', []));
+        $event->sponsors()->sync($request->input('sponsor_ids', []));
+        $event->partners()->sync($request->input('partner_ids', []));
+    
+        // return redirect()->route('events.index')->with('success', 'Event created successfully!');
+    }
+
         /**
 
      * Edits created resource in storage.
